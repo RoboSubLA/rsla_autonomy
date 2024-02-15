@@ -8,10 +8,11 @@ int main()
     BT::BehaviorTreeFactory factory;
 
     // Register all nodes
+    factory.registerNodeType<RSLA::Ping>("Ping");
     factory.registerNodeType<RSLA::PrintToLog>("PrintToLog");
 
     // Create and run tree
-    auto tree = factory.createTreeFromFile("./test_tree.xml");
+    auto tree = factory.createTreeFromFile("/home/pererry/rsla/test_tree.xml");
 
     BT::NodeStatus treeStatus = BT::NodeStatus::RUNNING;
 
