@@ -1,0 +1,10 @@
+<root BTCPP_format="4">
+    <BehaviorTree ID="TestTree">
+        <Sequence name="root_sequence">
+            <Ping       name="ping" />
+            <Ping       name="ping" />
+            <PrintToLog name="print" message="Test message 1!" />
+            <PrintToLog name="print" message="Test message 2!!!" />
+        </Sequence>
+    </BehaviorTree>
+</root>
