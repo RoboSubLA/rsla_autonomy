@@ -1,0 +1,10 @@
+<root BTCPP_FORMAT="4">
+    <BehaviorTree ID="TestTree">
+        <Sequence name="root_sequence">
+            <PrintLog   name="print_log_1" />
+            <PrintLog   name="print_log_2" />
+            <PrintLog   name="print_log_3" />
+            <PrintLog   name="print_log_4" />
+        </Sequence>
+    </BehaviorTree>
+</root>
