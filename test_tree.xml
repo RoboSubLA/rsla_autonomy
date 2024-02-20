@@ -1,10 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-    <BehaviorTree ID="TestTree">
-        <Sequence name="root_sequence">
-            <Ping       name="ping" />
-            <Ping       name="ping" />
-            <PrintToLog name="print" message="Test message 1!" />
-            <PrintToLog name="print" message="Test message 2!!!" />
+  <BehaviorTree ID="TestTree">
+    <Sequence name="root_sequence">
+      <Repeat num_cycles="12">
+        <Sequence>
+          <Ping name="ping"/>
+          <Sleep msec="5000"/>
         </Sequence>
-    </BehaviorTree>
+      </Repeat>
+      <Fallback>
+        <AlwaysFailure/>
+        <PrintToLog message="That failed :c"/>
+        <PrintToLog message="We shouldn&apos;t get here"/>
+      </Fallback>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="Ping"
+            editable="true"/>
+    <Action ID="PrintToLog"
+            editable="true">
+      <input_port name="message"/>
+    </Action>
+  </TreeNodesModel>
+
 </root>
