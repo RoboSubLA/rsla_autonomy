@@ -32,7 +32,8 @@ int main(int argc, char **argv)
     // Exit
     executor.cancel();
     spinner.join();
-    
+
     rclcpp::shutdown();
+
     return 0;
 }

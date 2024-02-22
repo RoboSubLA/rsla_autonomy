@@ -20,11 +20,11 @@ namespace RSLA
 
         BT::NodeStatus tick() override
         {
-            BT::Expected<int> msg = getInput<int>("trigger");
+            BT::Expected<int> trigger = getInput<int>("trigger");
 
-            if(!msg)
+            if(!trigger)
             {
-                throw BT::RuntimeError("missing required input [trigger]: ", msg.error());
+                throw BT::RuntimeError("missing required input [trigger]: ", trigger.error());
             }
 
             if(node_->new_trigger_data)
@@ -32,7 +32,7 @@ namespace RSLA
                 RCLCPP_INFO(node_->get_logger(), "New trigger data");
 
                 node_->new_trigger_data = false;
-                if(node_->trigger_value == msg.value())
+                if(node_->trigger_value == trigger.value())
                 {
                     RCLCPP_INFO(node_->get_logger(), "Trigger match!");
 
