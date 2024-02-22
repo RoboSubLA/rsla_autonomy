@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     factory.registerNodeType<RSLA::CheckForTrigger>("CheckForTrigger", node);
 
     // Create and run tree
-    auto tree = factory.createTreeFromFile("./test_tree.xml");
+    auto tree = factory.createTreeFromFile(strcat(getenv("HOME"), "/test_tree.xml"));
 
     tree.tickWhileRunning();
 

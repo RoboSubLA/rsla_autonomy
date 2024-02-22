@@ -2,24 +2,23 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="TestTree">
     <Sequence name="root_sequence">
-      <Repeat num_cycles="12">
-        <Sequence>
-          <Ping name="ping"/>
-          <Sleep msec="5000"/>
-        </Sequence>
-      </Repeat>
-      <Fallback>
-        <AlwaysFailure/>
-        <PrintToLog message="That failed :c"/>
-        <PrintToLog message="We shouldn&apos;t get here"/>
-      </Fallback>
+      <Sequence>
+        <PrintToLog message="Waiting for trigger..."/>
+        <RetryUntilSuccessful num_attempts="-1">
+          <CheckForTrigger trigger="1"/>
+        </RetryUntilSuccessful>
+      </Sequence>
+      <PrintToLog message="Triggered!"/>
     </Sequence>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="Ping"
-            editable="true"/>
+    <Condition ID="CheckForTrigger"
+               editable="true">
+      <input_port name="trigger"
+                  default="0"/>
+    </Condition>
     <Action ID="PrintToLog"
             editable="true">
       <input_port name="message"/>
