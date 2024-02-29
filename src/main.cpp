@@ -23,6 +23,7 @@ int main(int argc, char **argv)
     factory.registerNodeType<RSLA::Ping>("Ping");
     factory.registerNodeType<RSLA::PrintToLog>("PrintToLog");
     factory.registerNodeType<RSLA::CheckForTrigger>("CheckForTrigger", node);
+    factory.registerNodeType<RSLA::SetArmedState>("SetArmedState", node);
 
     // Create and run tree
     auto tree = factory.createTreeFromFile(strcat(getenv("HOME"), "/test_tree.xml"));
