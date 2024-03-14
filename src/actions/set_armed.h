@@ -17,7 +17,7 @@ namespace RSLA
 
         static BT::PortsList providedPorts()
         {
-            return { BT::InputPort<bool>("flag"), BT::InputPort<int>("timeout_ms") };
+            return { BT::InputPort<bool>("flag") };
         }
 
         BT::NodeStatus onStart() override

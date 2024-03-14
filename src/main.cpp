@@ -1,3 +1,6 @@
+#include <fstream>
+
+#include "behaviortree_cpp/xml_parsing.h"
 #include "behaviortree_cpp/bt_factory.h"
 
 #include "nodes.h"
@@ -24,9 +27,20 @@ int main(int argc, char **argv)
     factory.registerNodeType<RSLA::PrintToLog>("PrintToLog");
     factory.registerNodeType<RSLA::CheckForTrigger>("CheckForTrigger", node);
     factory.registerNodeType<RSLA::SetArmedState>("SetArmedState", node);
+    factory.registerNodeType<RSLA::CheckForHWArm>("CheckForHWArm", node);
+
+    // Get home directory
+    std::string home = getenv("HOME");
+
+    // Write node schema to file, create if it doesn't exist
+    std::string nodesModel = BT::writeTreeNodesModelXML(factory);
+    std::ofstream file;
+    file.open(home + "/rsla_autonomy_nodes_model.xml");
+    file << nodesModel;
+    file.close();
 
     // Create and run tree
-    auto tree = factory.createTreeFromFile(strcat(getenv("HOME"), "/test_tree.xml"));
+    auto tree = factory.createTreeFromFile(home + "/rsla_autonomy_tree.xml");
 
     tree.tickWhileRunning();
 

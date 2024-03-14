@@ -37,6 +37,12 @@ namespace RSLA
                 "rsla/controls/armed_echo",
                 1,
                 std::bind(&AutonomyNode::arm_echo_callback, this, std::placeholders::_1));
+
+            // Setup hardware kill switch subscriber
+            hw_arm_subscription_ = this->create_subscription<std_msgs::msg::Bool>(
+                "rsla/controls/hw_armed",
+                1,
+                std::bind(&AutonomyNode::hw_armed_callback, this, std::placeholders::_1));
         }
 
         bool new_trigger_data = false;
@@ -44,6 +50,9 @@ namespace RSLA
 
         bool new_arm_echo_data = false;
         bool arm_echo_value = false;
+
+        bool new_hw_arm_data = false;
+        bool hw_arm_value = false;
 
         void set_armed(bool flag)
         {
@@ -71,6 +80,12 @@ namespace RSLA
             RCLCPP_INFO(this->get_logger(), "Received armed echo: %u", msg->data);
         }
 
+        void hw_armed_callback(const std_msgs::msg::Bool::SharedPtr msg)
+        {
+            new_hw_arm_data = true;
+            hw_arm_value = msg->data;
+        }
+
         std_msgs::msg::Empty hb_message;
         rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr hb_publisher_;
         rclcpp::TimerBase::SharedPtr hb_timer_;
@@ -81,6 +96,8 @@ namespace RSLA
         rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr trigger_subscription_;
 
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr arm_echo_subscription_;
+
+        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr hw_arm_subscription_;
     };
 
 }
