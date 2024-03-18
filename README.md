@@ -56,12 +56,12 @@ If the situation arises that a new node is needed or an existing node needs edit
 
 1. Copy a basic template node
 2. Determine what needs to be changed
-  - Usually things like data values, variables, etc.
+    - Usually things like data values, variables, etc.
 3. Understand what the autonomy node does, and check that it's happy
-  - Data values and variables are set from the autonomy node through the callback function
-  - Done usually when any subscriber in the autonomy node receives a message
+    - Data values and variables are set from the autonomy node through the callback function
+    - Done usually when any subscriber in the autonomy node receives a message
 4. (Optional) If it needs one add a subscriber to autonomy_node.hpp for your node
-  - To use this, your node must have a pointer to the autonomy node so it can access that subscriber 
+    - To use this, your node must have a pointer to the autonomy node so it can access that subscriber 
 5. Add callback to autonomy_node.hpp
 6. Add the node to nodes.h header file
 7. Register the node to main.cpp 
