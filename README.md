@@ -1,6 +1,6 @@
 # Overview
 
-![Behavior Tree Example](Behavior-Tree-Example)
+![Behavior Tree Example](Behavior-Tree-Example.png)
 
 Autonomy is a fundamental requirement for any system to understand what to do with it's gathered data. Behavioral trees are a simple and straightforward method in achieving autonomy in robots. For this implementation, the library behaviortree.cpp will be utilized in conjuction with ROS2 Iron to detail what commands are sent in what order. This library was also created with Ubuntu 22.04.4 LTS. More details on the individual components of this system can be found below.
 
