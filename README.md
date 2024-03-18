@@ -41,10 +41,13 @@ From Root of Workspace (where you cloned the repo):
 
 Your program should now be running correctly, and will have publishers and subscribers (from ROS2) doing their respective actions.
 
+---
 # Composition of structure in main.cpp
 
 ![Autonomy Code Layout](/Autonomy-Code-Layout.png)
 
+
+---
 # How to make a new Node
 
 If the situation arises that a new node is needed or an existing node needs editing, below is a quick guide on what is needed to ensure a node works.
@@ -64,4 +67,3 @@ If the situation arises that a new node is needed or an existing node needs edit
 7. Register the node to main.cpp 
 8. Give the node a pointer to the autonomy_node.hpp
 
-# And that's all!*
