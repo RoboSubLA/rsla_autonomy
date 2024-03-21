@@ -3,7 +3,8 @@
 #include "behaviortree_cpp/xml_parsing.h"
 #include "behaviortree_cpp/bt_factory.h"
 
-#include "nodes.h"
+#include "conversions.hpp"
+#include "nodes.hpp"
 
 #include "autonomy_node.hpp"
 
