@@ -29,6 +29,7 @@ int main(int argc, char **argv)
     factory.registerNodeType<RSLA::CheckForTrigger>("CheckForTrigger", node);
     factory.registerNodeType<RSLA::SetArmedState>("SetArmedState", node);
     factory.registerNodeType<RSLA::CheckForHWArm>("CheckForHWArm", node);
+    factory.registerNodeType<RSLA::GoToPose>("GoToPose", node);
 
     // Get home directory
     std::string home = getenv("HOME");

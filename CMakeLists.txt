@@ -13,6 +13,7 @@ find_package(ament_cmake REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 
@@ -29,7 +30,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(rsla_autonomy src/main.cpp)
-ament_target_dependencies(rsla_autonomy std_msgs rclcpp behaviortree_cpp)
+ament_target_dependencies(rsla_autonomy std_msgs geometry_msgs rclcpp behaviortree_cpp)
 install(TARGETS rsla_autonomy DESTINATION lib/rsla_autonomy)
 
 ament_package()
