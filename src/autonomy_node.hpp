@@ -8,6 +8,7 @@
 #include "geometry_msgs/msg/quaternion.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 
 namespace RSLA
 {
@@ -57,6 +58,16 @@ namespace RSLA
                 "rsla/controls/cmdPoseEcho",
                 1,
                 std::bind(&AutonomyNode::cmd_pose_echo_callback, this, std::placeholders::_1));
+
+            // Setup commanded twist publisher
+            cmd_twist_message = geometry_msgs::msg::Twist();
+            cmd_twist_publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("rsla/controls/cmdTwist", 1);
+
+            // Setup commanded twist echo subscriber
+            cmd_twist_echo_subscription_ = this->create_subscription<geometry_msgs::msg::Twist>(
+                "rsla/controls/cmdTwistEcho",
+                1,
+                std::bind(&AutonomyNode::cmd_twist_echo_callback, this, std::placeholders::_1));
         }
 
         bool new_trigger_data = false;
@@ -70,6 +81,9 @@ namespace RSLA
 
         bool new_cmd_pose_echo_data = false;
         geometry_msgs::msg::Pose cmd_pose_echo_value;
+
+        bool new_cmd_twist_echo_data = false;
+        geometry_msgs::msg::Twist cmd_twist_echo_value;
 
         void set_armed(bool flag)
         {
@@ -88,6 +102,19 @@ namespace RSLA
             cmd_pose_message.position = pos;
             cmd_pose_message.orientation = rot;
             cmd_pose_publisher_->publish(cmd_pose_message);
+        }
+
+        void set_cmd_twist(geometry_msgs::msg::Twist twist)
+        {
+            cmd_twist_message = twist;
+            cmd_twist_publisher_->publish(cmd_twist_message);
+        }
+
+        void set_cmd_twist(geometry_msgs::msg::Vector3 linear, geometry_msgs::msg::Vector3 angular)
+        {
+            cmd_twist_message.linear = linear;
+            cmd_twist_message.angular = angular;
+            cmd_twist_publisher_->publish(cmd_twist_message);
         }
     private:
         void hb_callback()
@@ -123,6 +150,13 @@ namespace RSLA
             RCLCPP_INFO(this->get_logger(), "Received pose command echo");
         }
 
+        void cmd_twist_echo_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
+        {
+            new_cmd_twist_echo_data = true;
+            cmd_twist_echo_value = *msg;
+            RCLCPP_INFO(this->get_logger(), "Received twist command echo");
+        }
+
         std_msgs::msg::Empty hb_message;
         rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr hb_publisher_;
         rclcpp::TimerBase::SharedPtr hb_timer_;
@@ -138,6 +172,10 @@ namespace RSLA
         geometry_msgs::msg::Pose cmd_pose_message;
         rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr cmd_pose_publisher_;
         rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr cmd_pose_echo_subscription_;
+
+        geometry_msgs::msg::Twist cmd_twist_message;
+        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_twist_publisher_;
+        rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_twist_echo_subscription_;
     };
 
 }
