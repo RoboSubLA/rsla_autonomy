@@ -1,0 +1,43 @@
+<root BTCPP_format="4">
+    <TreeNodesModel>
+        <Action ID="CalibrateSurface"/>
+        <Condition ID="CanSeeObject">
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Action ID="GoAtWrench">
+            <input_port name="mask" type="unsigned char"/>
+            <input_port name="torque" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+            <input_port name="force" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+        </Action>
+        <Action ID="GoToPose">
+            <input_port name="rel" type="bool"/>
+            <input_port name="mask" type="unsigned char"/>
+            <input_port name="eulers" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+            <input_port name="position" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+        </Action>
+        <Condition ID="HaveSeenObject">
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Condition ID="HaveSeenObjectSince">
+            <input_port name="timeout" type="unsigned int"/>
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Action ID="HoldPosition"/>
+        <Condition ID="ObjectCloserThan">
+            <input_port name="distance" type="float"/>
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Action ID="PrintToLog">
+            <input_port name="message" type="std::string"/>
+        </Action>
+        <Action ID="SetArmedState">
+            <input_port name="flag" type="bool"/>
+        </Action>
+        <Action ID="TurnTowardsObject">
+            <input_port name="fraction" type="float"/>
+            <input_port name="class" type="unsigned char"/>
+        </Action>
+        <Action ID="WaitForPose"/>
+        <Action ID="WaitForVision"/>
+    </TreeNodesModel>
+</root>
