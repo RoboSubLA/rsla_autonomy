@@ -24,12 +24,20 @@ int main(int argc, char **argv)
     BT::BehaviorTreeFactory factory;
 
     // Register all nodes
-    factory.registerNodeType<RSLA::Ping>("Ping");
     factory.registerNodeType<RSLA::PrintToLog>("PrintToLog");
-    factory.registerNodeType<RSLA::CheckForTrigger>("CheckForTrigger", node);
     factory.registerNodeType<RSLA::SetArmedState>("SetArmedState", node);
-    factory.registerNodeType<RSLA::CheckForHWArm>("CheckForHWArm", node);
     factory.registerNodeType<RSLA::GoToPose>("GoToPose", node);
+    factory.registerNodeType<RSLA::GoAtWrench>("GoAtWrench", node);
+    factory.registerNodeType<RSLA::HoldPosition>("HoldPosition", node);
+    factory.registerNodeType<RSLA::CalibrateSurface>("CalibrateSurface", node);
+    factory.registerNodeType<RSLA::WaitForPose>("WaitForPose", node);
+    factory.registerNodeType<RSLA::WaitForVision>("WaitForVision", node);
+    factory.registerNodeType<RSLA::TurnTowardsObject>("TurnTowardsObject", node);
+
+    factory.registerNodeType<RSLA::CanSeeObject>("CanSeeObject", node);
+    factory.registerNodeType<RSLA::HaveSeenObject>("HaveSeenObject", node);
+    factory.registerNodeType<RSLA::HaveSeenObjectSince>("HaveSeenObjectSince", node);
+    factory.registerNodeType<RSLA::ObjectCloserThan>("ObjectCloserThan", node);
 
     // Get home directory
     std::string home = getenv("HOME");
@@ -44,7 +52,12 @@ int main(int argc, char **argv)
     // Create and run tree
     auto tree = factory.createTreeFromFile(home + "/rsla_autonomy_tree.xml");
 
-    tree.tickWhileRunning();
+    tree.tickOnce();
+    while(tree.rootNode()->status() == BT::NodeStatus::RUNNING && rclcpp::ok())
+    {
+        tree.tickOnce();
+        tree.sleep(std::chrono::milliseconds(50));
+    }
 
     // Exit
     executor.cancel();

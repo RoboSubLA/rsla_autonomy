@@ -6,25 +6,29 @@
 namespace RSLA
 {
 
-    class GoToPose : public BT::StatefulActionNode
+    class GoToPose : public BT::SyncActionNode
     {
     public:
         GoToPose(const std::string& name, const BT::NodeConfig& config,
             std::shared_ptr<RSLA::AutonomyNode> node) :
-            BT::StatefulActionNode(name, config),
+            BT::SyncActionNode(name, config),
             node_(node)
         {}
 
         static BT::PortsList providedPorts()
         {
             return { BT::InputPort<geometry_msgs::msg::Vector3>("position"),
-                     BT::InputPort<geometry_msgs::msg::Vector3>("eulers") };
+                     BT::InputPort<geometry_msgs::msg::Vector3>("eulers"),
+                     BT::InputPort<uint8_t>("mask"),
+                     BT::InputPort<bool>("rel") };
         }
 
-        BT::NodeStatus onStart() override
+        BT::NodeStatus tick() override
         {
             BT::Expected<geometry_msgs::msg::Vector3> pos = getInput<geometry_msgs::msg::Vector3>("position");
             BT::Expected<geometry_msgs::msg::Vector3> euler = getInput<geometry_msgs::msg::Vector3>("eulers");
+            BT::Expected<uint8_t> mask = getInput<uint8_t>("mask");
+            BT::Expected<bool> rel = getInput<bool>("rel");
 
             if(!pos)
             {
@@ -34,60 +38,31 @@ namespace RSLA
             if(!euler)
             {
                 throw BT::RuntimeError("missing required input [euler]: ", euler.error());
+            }
+
+            if(!mask)
+            {
+                throw BT::RuntimeError("missing required input [mask]: ", mask.error());
+            }
+
+            if(!rel)
+            {
+                throw BT::RuntimeError("missing required input [rel]: ", rel.error());
             }
 
             // Actually send the pose message
             RCLCPP_INFO(node_->get_logger(), "Sending pose command message...");
 
-            node_->set_cmd_pose(RSLA::convertToPoint(pos.value()), RSLA::convertFromEulerAngles(euler.value()));
-
-            return BT::NodeStatus::RUNNING;
-        }
-
-        BT::NodeStatus onRunning() override
-        {
-            BT::Expected<geometry_msgs::msg::Vector3> pos = getInput<geometry_msgs::msg::Vector3>("position");
-            BT::Expected<geometry_msgs::msg::Vector3> euler = getInput<geometry_msgs::msg::Vector3>("eulers");
-
-            if(!pos)
+            if(rel.value())
             {
-                throw BT::RuntimeError("missing required input [pos]: ", pos.error());
+                node_->set_cmd_pose_rel(RSLA::convertToPoint(pos.value()), RSLA::convertToEuler(euler.value()), mask.value());
+            }
+            else
+            {
+                node_->set_cmd_pose(RSLA::convertToPoint(pos.value()), RSLA::convertToEuler(euler.value()), mask.value());
             }
 
-            if(!euler)
-            {
-                throw BT::RuntimeError("missing required input [euler]: ", euler.error());
-            }
-
-            // Check if the commanded pose echo has been received
-            if(node_->new_cmd_pose_echo_data)
-            {
-                RCLCPP_INFO(node_->get_logger(), "New commanded pose echo data");
-                node_->new_cmd_pose_echo_data = false;
-
-                if(node_->cmd_pose_echo_value.position == RSLA::convertToPoint(pos.value()) &&
-                   node_->cmd_pose_echo_value.orientation == RSLA::convertFromEulerAngles(euler.value()))
-                {
-                    RCLCPP_INFO(node_->get_logger(), "Commanded pose echo match!");
-
-                    // Arm echo received and validated
-                    return BT::NodeStatus::SUCCESS;
-                }
-                else
-                {
-                    RCLCPP_INFO(node_->get_logger(), "Commanded pose echo invalid!");
-
-                    // Arm echo received but not what we expected
-                    return BT::NodeStatus::FAILURE;
-                }
-            }
-
-            return BT::NodeStatus::RUNNING;
-        }
-
-        void onHalted() override
-        {
-            RCLCPP_INFO(node_->get_logger(), "Pose command halted");
+            return BT::NodeStatus::SUCCESS;
         }
     private:
         std::shared_ptr<RSLA::AutonomyNode> node_;

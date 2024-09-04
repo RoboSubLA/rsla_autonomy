@@ -4,12 +4,12 @@
 namespace RSLA
 {
 
-    class SetArmedState : public BT::StatefulActionNode
+    class SetArmedState : public BT::SyncActionNode
     {
     public:
         SetArmedState(const std::string& name, const BT::NodeConfig& config,
             std::shared_ptr<RSLA::AutonomyNode> node) :
-            BT::StatefulActionNode(name, config),
+            BT::SyncActionNode(name, config),
             node_(node)
         {}
 
@@ -18,7 +18,7 @@ namespace RSLA
             return { BT::InputPort<bool>("flag") };
         }
 
-        BT::NodeStatus onStart() override
+        BT::NodeStatus tick() override
         {
             BT::Expected<bool> flag = getInput<bool>("flag");
 
@@ -32,46 +32,7 @@ namespace RSLA
 
             node_->set_armed(flag.value());
 
-            return BT::NodeStatus::RUNNING;
-        }
-
-        BT::NodeStatus onRunning() override
-        {
-            BT::Expected<bool> flag = getInput<bool>("flag");
-
-            if(!flag)
-            {
-                throw BT::RuntimeError("missing required input [flag]: ", flag.error());
-            }
-
-            // Check if the arm echo has been received
-            if(node_->new_arm_echo_data)
-            {
-                RCLCPP_INFO(node_->get_logger(), "New arm echo data");
-                node_->new_arm_echo_data = false;
-
-                if(node_->arm_echo_value == flag.value())
-                {
-                    RCLCPP_INFO(node_->get_logger(), "Arm echo match!");
-
-                    // Arm echo received and validated
-                    return BT::NodeStatus::SUCCESS;
-                }
-                else
-                {
-                    RCLCPP_INFO(node_->get_logger(), "Arm echo invalid!");
-
-                    // Arm echo received but not what we expected
-                    return BT::NodeStatus::FAILURE;
-                }
-            }
-
-            return BT::NodeStatus::RUNNING;
-        }
-
-        void onHalted() override
-        {
-            RCLCPP_INFO(node_->get_logger(), "Arm halted");
+            return BT::NodeStatus::SUCCESS;
         }
     private:
         std::shared_ptr<RSLA::AutonomyNode> node_;

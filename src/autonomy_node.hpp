@@ -3,15 +3,49 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/empty.hpp"
 #include "std_msgs/msg/bool.hpp"
+#include "std_msgs/msg/int8.hpp"
 #include "std_msgs/msg/int32.hpp"
 #include "geometry_msgs/msg/vector3.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/twist.hpp"
+#include "rsla_interfaces/msg/euler_angles.hpp"
+#include "rsla_interfaces/msg/pose_euler.hpp"
+#include "rsla_interfaces/msg/pose_with_mask.hpp"
+#include "rsla_interfaces/msg/wrench_with_mask.hpp"
+#include "rsla_interfaces/msg/detection.hpp"
+#include "rsla_interfaces/msg/detection_array.hpp"
 
 namespace RSLA
 {
+
+    constexpr uint8_t NUM_CLASSES = 8;
+
+    struct PoseEulerData
+    {
+        float x;
+        float y;
+        float z;
+        float roll;
+        float pitch;
+        float yaw;
+    };
+
+    struct DetectionData
+    {
+        uint8_t class_id = 0;
+        float confidence = 0.0;
+
+        bool detected_now = false;
+        bool detected_ever = false;
+        uint32_t millis_since_seen = 0;
+
+        float yaw_abs_approx = 0.0;
+        float pitch_abs_approx = 0.0;
+
+        float distance = 0.0;
+    };
 
     // ROS Node definition
     class AutonomyNode : public rclcpp::Node
@@ -29,61 +63,26 @@ namespace RSLA
 
             // Setup arm publisher
             arm_message = std_msgs::msg::Bool();
-            arm_publisher_ = this->create_publisher<std_msgs::msg::Bool>("rsla/autonomy/armed", 1);
-
-            // Setup arm echo subscriber
-            arm_echo_subscription_ = this->create_subscription<std_msgs::msg::Bool>(
-                "rsla/controls/armed_echo",
-                1,
-                std::bind(&AutonomyNode::arm_echo_callback, this, std::placeholders::_1));
-
-            // Setup trigger subscriber
-            trigger_subscription_ = this->create_subscription<std_msgs::msg::Int32>(
-                "rsla/autonomy/trigger",
-                1,
-                std::bind(&AutonomyNode::trigger_callback, this, std::placeholders::_1));
-
-            // Setup hardware kill switch subscriber
-            hw_arm_subscription_ = this->create_subscription<std_msgs::msg::Bool>(
-                "rsla/controls/hw_armed",   
-                1,
-                std::bind(&AutonomyNode::hw_armed_callback, this, std::placeholders::_1));
+            arm_publisher_ = this->create_publisher<std_msgs::msg::Bool>("rsla/controls/sw_arm", 1);
 
             // Setup commanded pose publisher
-            cmd_pose_message = geometry_msgs::msg::Pose();
-            cmd_pose_publisher_ = this->create_publisher<geometry_msgs::msg::Pose>("rsla/controls/cmdPose", 1);
+            cmd_pose_message = rsla_interfaces::msg::PoseWithMask();
+            cmd_pose_publisher_ = this->create_publisher<rsla_interfaces::msg::PoseWithMask>("rsla/autonomy/pose_setpoint_with_mask", 1);
 
-            // Setup commanded pose echo subscriber
-            cmd_pose_echo_subscription_ = this->create_subscription<geometry_msgs::msg::Pose>(
-                "rsla/controls/cmdPoseEcho",
-                1,
-                std::bind(&AutonomyNode::cmd_pose_echo_callback, this, std::placeholders::_1));
+            // Setup commanded pose publisher
+            cmd_wrench_message = rsla_interfaces::msg::WrenchWithMask();
+            cmd_wrench_publisher_ = this->create_publisher<rsla_interfaces::msg::WrenchWithMask>("rsla/autonomy/wrench_setpoint_with_mask", 1);
 
-            // Setup commanded twist publisher
-            cmd_twist_message = geometry_msgs::msg::Twist();
-            cmd_twist_publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("rsla/controls/cmdTwist", 1);
+            // Setup diagnostic command publisher
+            diagnostic_command_message = std_msgs::msg::Int8();
+            diagnostic_command_publisher_ = this->create_publisher<std_msgs::msg::Int8>("rsla/controls/diagnostic_command", 1);
 
-            // Setup commanded twist echo subscriber
-            cmd_twist_echo_subscription_ = this->create_subscription<geometry_msgs::msg::Twist>(
-                "rsla/controls/cmdTwistEcho",
-                1,
-                std::bind(&AutonomyNode::cmd_twist_echo_callback, this, std::placeholders::_1));
+            // Setup vehicle pose subscriber    
+            vehicle_pose_subscription_ = this->create_subscription<rsla_interfaces::msg::PoseEuler>("rsla/controls/pose_euler", 1, std::bind(&AutonomyNode::vehicle_pose_callback, this, std::placeholders::_1));
+
+            // Setup computer vision data subscriber
+            vision_detections_message_subscription_ = this->create_subscription<rsla_interfaces::msg::DetectionArray>("rsla/vision/detections", 1, std::bind(&AutonomyNode::vision_detections_callback, this, std::placeholders::_1));
         }
-
-        bool new_trigger_data = false;
-        int trigger_value = 0;
-
-        bool new_arm_echo_data = false;
-        bool arm_echo_value = false;
-
-        bool new_hw_arm_data = false;
-        bool hw_arm_value = false;
-
-        bool new_cmd_pose_echo_data = false;
-        geometry_msgs::msg::Pose cmd_pose_echo_value;
-
-        bool new_cmd_twist_echo_data = false;
-        geometry_msgs::msg::Twist cmd_twist_echo_value;
 
         void set_armed(bool flag)
         {
@@ -91,91 +90,151 @@ namespace RSLA
             arm_publisher_->publish(arm_message);
         }
 
-        void set_cmd_pose(geometry_msgs::msg::Pose pose)
+        void set_cmd_pose(rsla_interfaces::msg::PoseEuler pose, uint8_t mask)
         {
-            cmd_pose_message = pose;
+            cmd_pose_message.cmd = pose;
+            cmd_pose_message.mask = mask;
             cmd_pose_publisher_->publish(cmd_pose_message);
         }
 
-        void set_cmd_pose(geometry_msgs::msg::Point pos, geometry_msgs::msg::Quaternion rot)
+        void set_cmd_pose(geometry_msgs::msg::Point position, rsla_interfaces::msg::EulerAngles orientation, uint8_t mask)
         {
-            cmd_pose_message.position = pos;
-            cmd_pose_message.orientation = rot;
+            cmd_pose_message.cmd.position = position;
+            cmd_pose_message.cmd.orientation = orientation;
+            cmd_pose_message.mask = mask;
             cmd_pose_publisher_->publish(cmd_pose_message);
         }
 
-        void set_cmd_twist(geometry_msgs::msg::Twist twist)
+        void set_cmd_pose_rel(geometry_msgs::msg::Point position, rsla_interfaces::msg::EulerAngles orientation, uint8_t mask)
         {
-            cmd_twist_message = twist;
-            cmd_twist_publisher_->publish(cmd_twist_message);
+            cmd_pose_message.cmd.position.x += position.x;
+            cmd_pose_message.cmd.position.y += position.y;
+            cmd_pose_message.cmd.position.z += position.z;
+
+            cmd_pose_message.cmd.orientation.yaw += orientation.yaw;
+            cmd_pose_message.cmd.orientation.yaw = fmodf(cmd_pose_message.cmd.orientation.yaw + 360, 360);
+
+            cmd_pose_message.cmd.orientation.pitch += orientation.pitch;
+            cmd_pose_message.cmd.orientation.roll += orientation.roll;
+
+            cmd_pose_message.mask = mask;
+            cmd_pose_publisher_->publish(cmd_pose_message);
         }
 
-        void set_cmd_twist(geometry_msgs::msg::Vector3 linear, geometry_msgs::msg::Vector3 angular)
+        void set_cmd_pose(float x, float y, float z, float roll, float pitch, float yaw, uint8_t mask)
         {
-            cmd_twist_message.linear = linear;
-            cmd_twist_message.angular = angular;
-            cmd_twist_publisher_->publish(cmd_twist_message);
+            cmd_pose_message.cmd.position.x = x;
+            cmd_pose_message.cmd.position.y = y;
+            cmd_pose_message.cmd.position.z = z;
+            cmd_pose_message.cmd.orientation.roll = roll;
+            cmd_pose_message.cmd.orientation.pitch = pitch;
+            cmd_pose_message.cmd.orientation.yaw = yaw;
+            cmd_pose_message.mask = mask;
+            cmd_pose_publisher_->publish(cmd_pose_message);
         }
+
+        void set_cmd_wrench(geometry_msgs::msg::Wrench wrench, uint8_t mask)
+        {
+            cmd_wrench_message.cmd = wrench;
+            cmd_wrench_message.mask = mask;
+            cmd_wrench_publisher_->publish(cmd_wrench_message);
+        }
+
+        void set_cmd_wrench(geometry_msgs::msg::Vector3 force, geometry_msgs::msg::Vector3 angular, uint8_t mask)
+        {
+            cmd_wrench_message.cmd.force = force;
+            cmd_wrench_message.cmd.torque = angular;
+            cmd_wrench_message.mask = mask;
+            cmd_wrench_publisher_->publish(cmd_wrench_message);
+        }
+
+        void set_cmd_wrench(float fx, float fy, float fz, float tx, float ty, float tz, uint8_t mask)
+        {
+            cmd_wrench_message.cmd.force.x = fx;
+            cmd_wrench_message.cmd.force.y = fy;
+            cmd_wrench_message.cmd.force.z = fz;
+            cmd_wrench_message.cmd.torque.x = tx;
+            cmd_wrench_message.cmd.torque.y = ty;
+            cmd_wrench_message.cmd.torque.z = tz;
+            cmd_wrench_message.mask = mask;
+            cmd_wrench_publisher_->publish(cmd_wrench_message);
+        }
+
+        void set_hold_position()
+        {
+            set_cmd_pose(current_pose.x, current_pose.y, current_pose.z, current_pose.roll, current_pose.pitch, current_pose.yaw, 0b111111);
+        }
+
+        void send_diagnostic_command(int8_t command)
+        {
+            diagnostic_command_message.data = command;
+            diagnostic_command_publisher_->publish(diagnostic_command_message);
+        }
+
+        PoseEulerData current_pose;
+        bool new_pose_data = false;
+
+        DetectionData detections[NUM_CLASSES];
+        bool new_vision_data = false;
     private:
         void hb_callback()
         {
-            RCLCPP_INFO(this->get_logger(), "Heartbeat!");
             hb_publisher_->publish(hb_message);
         }
 
-        void trigger_callback(const std_msgs::msg::Int32::SharedPtr msg)
+        void vehicle_pose_callback(const rsla_interfaces::msg::PoseEuler::SharedPtr msg)
         {
-            new_trigger_data = true;
-            trigger_value = msg->data;
-            RCLCPP_INFO(this->get_logger(), "Received trigger: %u", msg->data);
+            current_pose.x = msg->position.x;
+            current_pose.y = msg->position.y;
+            current_pose.z = msg->position.z;
+            current_pose.roll = msg->orientation.roll;
+            current_pose.pitch = msg->orientation.pitch;
+            current_pose.yaw = msg->orientation.yaw;
+            new_pose_data = true;
         }
 
-        void arm_echo_callback(const std_msgs::msg::Bool::SharedPtr msg)
+        void vision_detections_callback(const rsla_interfaces::msg::DetectionArray::SharedPtr msg)
         {
-            new_arm_echo_data = true;
-            arm_echo_value = msg->data;
-            RCLCPP_INFO(this->get_logger(), "Received armed echo: %u", msg->data);
+            for(int i = 0; i < NUM_CLASSES; i++)
+            {
+                rsla_interfaces::msg::Detection det = msg->detections[i]; 
+                detections[i].class_id = det.id;
+                detections[i].detected_now = det.detected;
+                if(det.detected)
+                {
+                    detections[i].detected_ever = true;
+                }
+                detections[i].confidence = det.confidence;
+                detections[i].millis_since_seen = det.millis_since_last_detected;
+                if(det.detected)
+                {
+                    detections[i].yaw_abs_approx = current_pose.yaw + det.ang_x;
+                    detections[i].pitch_abs_approx = current_pose.pitch + det.ang_y;
+                }
+                detections[i].distance = det.distance;
+            }
+            new_vision_data = true;
         }
 
-        void hw_armed_callback(const std_msgs::msg::Bool::SharedPtr msg)
-        {
-            new_hw_arm_data = true;
-            hw_arm_value = msg->data;
-        }
-
-        void cmd_pose_echo_callback(const geometry_msgs::msg::Pose::SharedPtr msg)
-        {
-            new_cmd_pose_echo_data = true;
-            cmd_pose_echo_value = *msg;
-            RCLCPP_INFO(this->get_logger(), "Received pose command echo");
-        }
-
-        void cmd_twist_echo_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
-        {
-            new_cmd_twist_echo_data = true;
-            cmd_twist_echo_value = *msg;
-            RCLCPP_INFO(this->get_logger(), "Received twist command echo");
-        }
-
+        // Publishers
         std_msgs::msg::Empty hb_message;
         rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr hb_publisher_;
         rclcpp::TimerBase::SharedPtr hb_timer_;
 
         std_msgs::msg::Bool arm_message;
         rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr arm_publisher_;
-        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr arm_echo_subscription_;
 
-        rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr trigger_subscription_;
+        rsla_interfaces::msg::PoseWithMask cmd_pose_message;
+        rclcpp::Publisher<rsla_interfaces::msg::PoseWithMask>::SharedPtr cmd_pose_publisher_;
 
-        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr hw_arm_subscription_;
+        rsla_interfaces::msg::WrenchWithMask cmd_wrench_message;
+        rclcpp::Publisher<rsla_interfaces::msg::WrenchWithMask>::SharedPtr cmd_wrench_publisher_;
 
-        geometry_msgs::msg::Pose cmd_pose_message;
-        rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr cmd_pose_publisher_;
-        rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr cmd_pose_echo_subscription_;
+        std_msgs::msg::Int8 diagnostic_command_message;
+        rclcpp::Publisher<std_msgs::msg::Int8>::SharedPtr diagnostic_command_publisher_;
 
-        geometry_msgs::msg::Twist cmd_twist_message;
-        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_twist_publisher_;
-        rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_twist_echo_subscription_;
+        // Subscribers
+        rclcpp::Subscription<rsla_interfaces::msg::PoseEuler>::SharedPtr vehicle_pose_subscription_;
+        rclcpp::Subscription<rsla_interfaces::msg::DetectionArray>::SharedPtr vision_detections_message_subscription_;
     };
-
 }

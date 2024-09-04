@@ -16,6 +16,7 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
+find_package(rsla_interfaces REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -30,7 +31,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(rsla_autonomy src/main.cpp)
-ament_target_dependencies(rsla_autonomy std_msgs geometry_msgs rclcpp behaviortree_cpp)
+ament_target_dependencies(rsla_autonomy std_msgs geometry_msgs rclcpp behaviortree_cpp rsla_interfaces)
 install(TARGETS rsla_autonomy DESTINATION lib/rsla_autonomy)
 
 ament_package()

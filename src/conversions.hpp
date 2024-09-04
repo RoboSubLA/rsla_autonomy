@@ -5,6 +5,7 @@
 #include "geometry_msgs/msg/vector3.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
+#include "rsla_interfaces/msg/pose_euler.hpp"
 
 namespace BT
 {
@@ -56,6 +57,16 @@ namespace RSLA
         output.x = vec.x;
         output.y = vec.y;
         output.z = vec.z;
+
+        return output;
+    }
+
+    inline rsla_interfaces::msg::EulerAngles convertToEuler(geometry_msgs::msg::Vector3 vec)
+    {
+        rsla_interfaces::msg::EulerAngles output;
+        output.roll = vec.x;
+        output.pitch = vec.y;
+        output.yaw = vec.z;
 
         return output;
     }
