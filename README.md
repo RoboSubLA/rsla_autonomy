@@ -39,13 +39,14 @@ From Root of Workspace (where you cloned the repo):
 
 ## Step 3: It's Done!
 
-Your program should now be running correctly, and will have publishers and subscribers (from ROS2) doing their respective actions.
+Your program should now be able to run, and should have publishers and subscribers (from ROS2) doing their respective actions.
+Example to test with:
+> ros2 run rsla_autonomy rsla_autonomy
 
 ---
 # Composition of structure in main.cpp
 
 ![Autonomy Code Layout](/Autonomy-Code-Layout.png)
-
 
 ---
 # How to make a new Node
