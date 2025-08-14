@@ -36,7 +36,7 @@ namespace RSLA
                 throw BT::RuntimeError("missing required input [fraction]: ", fraction.error());
             }
 
-            if(!node_->detections[class_id.value()].detected_ever)
+            if(!node_->frontDetections[class_id.value()].detected_ever)
             {
                 return BT::NodeStatus::SUCCESS;
             }
@@ -45,7 +45,7 @@ namespace RSLA
             RCLCPP_INFO(node_->get_logger(), "Turning towards object...");
 
             float turn_alpha = fraction.value();
-            float detected_object_yaw = node_->detections[class_id.value()].yaw_abs_approx;
+            float detected_object_yaw = node_->frontDetections[class_id.value()].yaw_abs_approx;
             float new_yaw_command = (detected_object_yaw * turn_alpha) + (node_->current_pose.yaw * (1 - turn_alpha));
 
             node_->set_cmd_pose(0, 0, 0, 0, 0, new_yaw_command, 32);

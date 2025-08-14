@@ -27,17 +27,23 @@ int main(int argc, char **argv)
     factory.registerNodeType<RSLA::PrintToLog>("PrintToLog");
     factory.registerNodeType<RSLA::SetArmedState>("SetArmedState", node);
     factory.registerNodeType<RSLA::GoToPose>("GoToPose", node);
+    factory.registerNodeType<RSLA::DropBall>("DropBall", node);
     factory.registerNodeType<RSLA::GoAtWrench>("GoAtWrench", node);
     factory.registerNodeType<RSLA::HoldPosition>("HoldPosition", node);
     factory.registerNodeType<RSLA::CalibrateSurface>("CalibrateSurface", node);
     factory.registerNodeType<RSLA::WaitForPose>("WaitForPose", node);
-    factory.registerNodeType<RSLA::WaitForVision>("WaitForVision", node);
+    factory.registerNodeType<RSLA::WaitForFrontVision>("WaitForFrontVision", node);
+    factory.registerNodeType<RSLA::WaitForDownVision>("WaitForDownVision", node);
     factory.registerNodeType<RSLA::TurnTowardsObject>("TurnTowardsObject", node);
 
-    factory.registerNodeType<RSLA::CanSeeObject>("CanSeeObject", node);
-    factory.registerNodeType<RSLA::HaveSeenObject>("HaveSeenObject", node);
-    factory.registerNodeType<RSLA::HaveSeenObjectSince>("HaveSeenObjectSince", node);
-    factory.registerNodeType<RSLA::ObjectCloserThan>("ObjectCloserThan", node);
+    factory.registerNodeType<RSLA::FrontCanSeeObject>("FrontCanSeeObject", node);
+    factory.registerNodeType<RSLA::FrontHaveSeenObject>("FrontHaveSeenObject", node);
+    factory.registerNodeType<RSLA::FrontHaveSeenObjectSince>("FrontHaveSeenObjectSince", node);
+    factory.registerNodeType<RSLA::FrontObjectCloserThan>("FrontObjectCloserThan", node);
+    factory.registerNodeType<RSLA::DownCanSeeObject>("DownCanSeeObject", node);
+    factory.registerNodeType<RSLA::DownHaveSeenObject>("DownHaveSeenObject", node);
+    factory.registerNodeType<RSLA::DownHaveSeenObjectSince>("DownHaveSeenObjectSince", node);
+    factory.registerNodeType<RSLA::DownObjectCloserThan>("DownObjectCloserThan", node);
 
     // Get home directory
     std::string home = getenv("HOME");

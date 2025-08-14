@@ -73,6 +73,10 @@ namespace RSLA
             cmd_wrench_message = rsla_interfaces::msg::WrenchWithMask();
             cmd_wrench_publisher_ = this->create_publisher<rsla_interfaces::msg::WrenchWithMask>("rsla/autonomy/wrench_setpoint_with_mask", 1);
 
+            // Setup commanded ball drop publisher
+            cmd_ball_drop_message = std_msgs::msg::Int8();
+            cmd_ball_drop_publisher_ = this->create_publisher<std_msgs::msg::Int8>("rsla/controls/ball_dropper", 1);
+
             // Setup diagnostic command publisher
             diagnostic_command_message = std_msgs::msg::Int8();
             diagnostic_command_publisher_ = this->create_publisher<std_msgs::msg::Int8>("rsla/controls/diagnostic_command", 1);
@@ -80,8 +84,9 @@ namespace RSLA
             // Setup vehicle pose subscriber    
             vehicle_pose_subscription_ = this->create_subscription<rsla_interfaces::msg::PoseEuler>("rsla/controls/pose_euler", 1, std::bind(&AutonomyNode::vehicle_pose_callback, this, std::placeholders::_1));
 
-            // Setup computer vision data subscriber
-            vision_detections_message_subscription_ = this->create_subscription<rsla_interfaces::msg::DetectionArray>("rsla/vision/detections", 1, std::bind(&AutonomyNode::vision_detections_callback, this, std::placeholders::_1));
+            // Setup computer vision data subscribers
+            vision_front_detections_message_subscription_ = this->create_subscription<rsla_interfaces::msg::DetectionArray>("rsla/vision/front_detections", 1, std::bind(&AutonomyNode::vision_front_detections_callback, this, std::placeholders::_1));
+            vision_down_detections_message_subscription_ = this->create_subscription<rsla_interfaces::msg::DetectionArray>("rsla/vision/down_detections", 1, std::bind(&AutonomyNode::vision_down_detections_callback, this, std::placeholders::_1));
         }
 
         void set_armed(bool flag)
@@ -160,6 +165,12 @@ namespace RSLA
             cmd_wrench_publisher_->publish(cmd_wrench_message);
         }
 
+        void set_cmd_ball_drop(int8_t data)
+        {
+            cmd_ball_drop_message.data = data;
+            cmd_ball_drop_publisher_->publish(cmd_ball_drop_message);
+        }
+
         void set_hold_position()
         {
             set_cmd_pose(current_pose.x, current_pose.y, current_pose.z, current_pose.roll, current_pose.pitch, current_pose.yaw, 0b111111);
@@ -174,8 +185,10 @@ namespace RSLA
         PoseEulerData current_pose;
         bool new_pose_data = false;
 
-        DetectionData detections[NUM_CLASSES];
-        bool new_vision_data = false;
+        DetectionData frontDetections[NUM_CLASSES];
+        DetectionData downDetections[NUM_CLASSES];
+        bool new_front_vision_data = false;
+        bool new_down_vision_data = false;
     private:
         void hb_callback()
         {
@@ -193,27 +206,50 @@ namespace RSLA
             new_pose_data = true;
         }
 
-        void vision_detections_callback(const rsla_interfaces::msg::DetectionArray::SharedPtr msg)
+        void vision_front_detections_callback(const rsla_interfaces::msg::DetectionArray::SharedPtr msg)
         {
             for(int i = 0; i < NUM_CLASSES; i++)
             {
                 rsla_interfaces::msg::Detection det = msg->detections[i]; 
-                detections[i].class_id = det.id;
-                detections[i].detected_now = det.detected;
+                frontDetections[i].class_id = det.id;
+                frontDetections[i].detected_now = det.detected;
                 if(det.detected)
                 {
-                    detections[i].detected_ever = true;
+                    frontDetections[i].detected_ever = true;
                 }
-                detections[i].confidence = det.confidence;
-                detections[i].millis_since_seen = det.millis_since_last_detected;
+                frontDetections[i].confidence = det.confidence;
+                frontDetections[i].millis_since_seen = det.millis_since_last_detected;
                 if(det.detected)
                 {
-                    detections[i].yaw_abs_approx = current_pose.yaw + det.ang_x;
-                    detections[i].pitch_abs_approx = current_pose.pitch + det.ang_y;
+                    frontDetections[i].yaw_abs_approx = current_pose.yaw + det.ang_x;
+                    frontDetections[i].pitch_abs_approx = current_pose.pitch + det.ang_y;
                 }
-                detections[i].distance = det.distance;
+                frontDetections[i].distance = det.distance;
             }
-            new_vision_data = true;
+            new_front_vision_data = true;
+        }
+
+        void vision_down_detections_callback(const rsla_interfaces::msg::DetectionArray::SharedPtr msg)
+        {
+            for(int i = 0; i < NUM_CLASSES; i++)
+            {
+                rsla_interfaces::msg::Detection det = msg->detections[i]; 
+                downDetections[i].class_id = det.id;
+                downDetections[i].detected_now = det.detected;
+                if(det.detected)
+                {
+                    downDetections[i].detected_ever = true;
+                }
+                downDetections[i].confidence = det.confidence;
+                downDetections[i].millis_since_seen = det.millis_since_last_detected;
+                if(det.detected)
+                {
+                    downDetections[i].yaw_abs_approx = current_pose.yaw + det.ang_x;
+                    downDetections[i].pitch_abs_approx = current_pose.pitch + det.ang_y;
+                }
+                downDetections[i].distance = det.distance;
+            }
+            new_down_vision_data = true;
         }
 
         // Publishers
@@ -230,11 +266,15 @@ namespace RSLA
         rsla_interfaces::msg::WrenchWithMask cmd_wrench_message;
         rclcpp::Publisher<rsla_interfaces::msg::WrenchWithMask>::SharedPtr cmd_wrench_publisher_;
 
+        std_msgs::msg::Int8 cmd_ball_drop_message;
+        rclcpp::Publisher<std_msgs::msg::Int8>::SharedPtr cmd_ball_drop_publisher_;
+
         std_msgs::msg::Int8 diagnostic_command_message;
         rclcpp::Publisher<std_msgs::msg::Int8>::SharedPtr diagnostic_command_publisher_;
 
         // Subscribers
         rclcpp::Subscription<rsla_interfaces::msg::PoseEuler>::SharedPtr vehicle_pose_subscription_;
-        rclcpp::Subscription<rsla_interfaces::msg::DetectionArray>::SharedPtr vision_detections_message_subscription_;
+        rclcpp::Subscription<rsla_interfaces::msg::DetectionArray>::SharedPtr vision_front_detections_message_subscription_;
+        rclcpp::Subscription<rsla_interfaces::msg::DetectionArray>::SharedPtr vision_down_detections_message_subscription_;
     };
 }
