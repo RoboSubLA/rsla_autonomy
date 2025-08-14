@@ -82,6 +82,7 @@
       <Sleep msec="5000"/>
       <SubTree ID="Gate"/>
       <SubTree ID="With_Style"/>
+      <SubTree ID="Slalom"/>
       <SubTree ID="Shutdown"
                _autoremap="false"/>
     </Sequence>
@@ -97,6 +98,7 @@
                 mask="4"
                 eulers="0;0;0"
                 position="0;0;1"/>
+      <Sleep msec="5000"/>
       <GoAtWrench mask="32"
                   torque="0;0;-5"
                   force="0;0;0"/>
