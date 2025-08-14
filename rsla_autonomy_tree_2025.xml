@@ -45,7 +45,7 @@
                 mask="4"
                 eulers="0;0;0"
                 position="0;0;1"/>
-      <Sleep msec="5000"/>
+      <Sleep msec="15000"/>
       <GoAtWrench mask="32"
                   torque="0;0;5"
                   force="0;0;0"/>
@@ -106,29 +106,21 @@
         <Sequence>
           <WaitForFrontVision/>
           <FrontCanSeeObject class="0"/>
+          <FrontCanSeeObject class="1" />
         </Sequence>
       </RetryUntilSuccessful>
-      <TurnTowardsObject fraction="0.75"
-                         class="0"/>
       <GoAtWrench mask="1"
                   torque="0;0;0"
                   force="10;0;0"/>
-      <WhileDoElse>
-        <Fallback>
-          <FrontCanSeeObject class="0"/>
-          <FrontCanSeeObject class="0"/>
-        </Fallback>
-        <GoAtWrench mask="1"
-                    torque="0;0;0"
-                    force="10;0;0"/>
-        <AlwaysSuccess/>
-      </WhileDoElse>
-      <HoldPosition/>
-      <HoldPosition/>
-      <GoAtWrench mask="3"
-                  torque="0;0;0"
-                  force="-15;10;0"/>
-      <Sleep msec="5000"/>
+      <RepeatUntilSuccessful num_attempts="-1">
+        <ForceFailure>
+          <OrientTowardsSlalom white_id="0"
+                               red_id="1"
+                               gate_type="0"
+                               shift_force="15"
+                               fraction="0.75"/>
+        </ForceFailure>
+      </RepeatUntilSuccessful>
     </Sequence>
   </BehaviorTree>
 

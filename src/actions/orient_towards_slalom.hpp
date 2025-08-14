@@ -31,17 +31,27 @@ namespace RSLA
             //  2 => either is accepted
             BT::Expected<uint8_t> gate_type = getInput<uint8_t>("gate_type");
             // amount the robot shifts its position when its not looking at the right side of slalom
-            BT::Expected<float> shift_amount = getInput<float>("shift_amount");
+            BT::Expected<float> shift_force = getInput<float>("shift_force");
             BT::Expected<float> fraction = getInput<float>("fraction");
 
             if(!white_id)
             {
-                throw BT::RuntimeError("missing required input [white_id]: ", white_id.error());
+                throw BT::RuntimeError("missing required input [shift_force]: ", white_id.error());
             }
 
             if(!red_id)
             {
                 throw BT::RuntimeError("missing required input [red_id]: ", red_id.error());
+            }
+
+            if(!gate_type)
+            {
+                throw BT::RuntimeError("missing required input [gate_type]: ", gate_type.error());
+            }
+
+            if(!shift_force)
+            {
+                throw BT::RuntimeError("missing required input [shift_force]: ", shift_force.error());
             }
 
             if(!fraction)
@@ -57,20 +67,28 @@ namespace RSLA
             // visionActually send the pose message
             RCLCPP_INFO(node_->get_logger(), "Turning towards object...");
 
-            float turn_alpha = fraction.value();
             float white_yaw = node_->frontDetections[white_id.value()].yaw_abs_approx;
             float red_yaw = node_->frontDetections[red_id.value()].yaw_abs_approx;
 
             if(gate_type.value() < 2 && gate_type.value() == white_yaw > red_yaw)
             {
-                node_->set_cmd_pose(0, node_->current_pose.y + (2*gate_type.value() - 1)*shift_amount, 0, 0, 0, 0, 2);
+                geometry_msgs::msg::Vector3 force;
+                force.x = 0;
+                force.y = shift_force.value();
+                force.z = 0;
+                geometry_msgs::msg::Vector3 torque;
+                torque.x = 0;
+                torque.y = 0;
+                torque.z = 0;
+                node_->set_cmd_wrench(force, torque, 2);
                 return BT::NodeStatus::SUCCESS;
             }
 
+            float turn_alpha = fraction.value();
             float slalom_yaw = (white_yaw + red_yaw) / 2;
             float new_yaw_command = (slalom_yaw * turn_alpha) + (node_->current_pose.yaw * (1 - turn_alpha));
 
-            node_->set_cmd_pose(0, 0, 0, 0, 0, new_yaw_command, 32);
+            node_->set_cmd_pose(0, 0, 0, 0, 0, new_yaw_command, 34);
 
             return BT::NodeStatus::SUCCESS;
         }
