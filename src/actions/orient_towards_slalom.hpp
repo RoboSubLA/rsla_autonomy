@@ -36,7 +36,7 @@ namespace RSLA
 
             if(!white_id)
             {
-                throw BT::RuntimeError("missing required input [shift_force]: ", white_id.error());
+                throw BT::RuntimeError("missing required input [white_id]: ", white_id.error());
             }
 
             if(!red_id)
