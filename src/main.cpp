@@ -35,6 +35,7 @@ int main(int argc, char **argv)
     factory.registerNodeType<RSLA::WaitForFrontVision>("WaitForFrontVision", node);
     factory.registerNodeType<RSLA::WaitForDownVision>("WaitForDownVision", node);
     factory.registerNodeType<RSLA::TurnTowardsObject>("TurnTowardsObject", node);
+    factory.registerNodeType<RSLA::OrientTowardsSlalom>("OrientTowardsSlalom", node);
 
     factory.registerNodeType<RSLA::FrontCanSeeObject>("FrontCanSeeObject", node);
     factory.registerNodeType<RSLA::FrontHaveSeenObject>("FrontHaveSeenObject", node);
