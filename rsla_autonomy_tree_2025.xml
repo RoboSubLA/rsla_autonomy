@@ -44,7 +44,7 @@
       <GoToPose rel="0"
                 mask="4"
                 eulers="0;0;0"
-                position="0;0;1"/>
+                position="0;0;0.7"/>
       <Sleep msec="15000"/>
       <GoAtWrench mask="32"
                   torque="0;0;5"
@@ -81,7 +81,6 @@
       <SubTree ID="Startup"/>
       <Sleep msec="5000"/>
       <SubTree ID="Gate"/>
-      <SubTree ID="With_Style"/>
       <SubTree ID="Slalom"/>
       <SubTree ID="Shutdown"
                _autoremap="false"/>
@@ -97,7 +96,7 @@
       <GoToPose rel="0"
                 mask="4"
                 eulers="0;0;0"
-                position="0;0;1"/>
+                position="0;0;1.5"/>
       <Sleep msec="5000"/>
       <GoAtWrench mask="32"
                   torque="0;0;-5"
@@ -105,22 +104,22 @@
       <RetryUntilSuccessful num_attempts="-1">
         <Sequence>
           <WaitForFrontVision/>
-          <FrontCanSeeObject class="7"/>
-          <FrontCanSeeObject class="3" />
+          <FrontCanSeeObject class="6"/>
+          <FrontCanSeeObject class="2" />
         </Sequence>
       </RetryUntilSuccessful>
       <GoAtWrench mask="1"
                   torque="0;0;0"
                   force="10;0;0"/>
-      <RepeatUntilSuccessful num_attempts="-1">
+      <RetryUntilSuccessful num_attempts="-1">
         <ForceFailure>
-          <OrientTowardsSlalom white_id="7"
-                               red_id="3"
+          <OrientTowardsSlalom white_id="6"
+                               red_id="2"
                                gate_type="0"
-                               shift_force="10"
+                               shift_force="15"
                                fraction="0.75"/>
         </ForceFailure>
-      </RepeatUntilSuccessful>
+      </RetryUntilSuccessful>
     </Sequence>
   </BehaviorTree>
 
