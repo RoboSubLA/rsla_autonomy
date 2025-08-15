@@ -105,8 +105,8 @@
       <RetryUntilSuccessful num_attempts="-1">
         <Sequence>
           <WaitForFrontVision/>
-          <FrontCanSeeObject class="0"/>
-          <FrontCanSeeObject class="1" />
+          <FrontCanSeeObject class="7"/>
+          <FrontCanSeeObject class="3" />
         </Sequence>
       </RetryUntilSuccessful>
       <GoAtWrench mask="1"
@@ -114,10 +114,10 @@
                   force="10;0;0"/>
       <RepeatUntilSuccessful num_attempts="-1">
         <ForceFailure>
-          <OrientTowardsSlalom white_id="0"
-                               red_id="1"
+          <OrientTowardsSlalom white_id="7"
+                               red_id="3"
                                gate_type="0"
-                               shift_force="15"
+                               shift_force="10"
                                fraction="0.75"/>
         </ForceFailure>
       </RepeatUntilSuccessful>
