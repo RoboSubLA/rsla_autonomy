@@ -17,7 +17,10 @@ namespace RSLA
 
         static BT::PortsList providedPorts()
         {
-            return { BT::InputPort<uint8_t>("class"),
+            return { BT::InputPort<uint8_t>("white_id"),
+		     BT::InputPort<uint8_t>("red_id"),
+		     BT::InputPort<uint8_t>("gate_type"),
+		     BT::InputPort<float>("shift_force"),
                      BT::InputPort<float>("fraction") };
         }
 
