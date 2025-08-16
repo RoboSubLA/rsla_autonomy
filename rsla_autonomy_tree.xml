@@ -75,11 +75,13 @@
       <ForceSuccess>
         <Timeout msec="5000">
           <Repeat num_cycles="-1">
-            <WaitForDownVision/>
-            <AlignAboveObject class="6"
-                              x_offset="0"
-                              y_offset="0"
-                              k_p="1"/>
+            <Sequence>
+              <WaitForDownVision/>
+              <AlignAboveObject class="6"
+                                x_offset="0"
+                                y_offset="0"
+                                k_p="1"/>
+            </Sequence>
           </Repeat>
         </Timeout>
       </ForceSuccess>
