@@ -140,6 +140,8 @@
       <SubTree ID="Gate"/>
       <SubTree ID="With_Style"/>
       <SubTree ID="Slalom"/>
+      <SubTree ID="Bin"/>
+      <SubTree ID="Octagon"/>
       <SubTree ID="Shutdown"
                _autoremap="false"/>
     </Sequence>
