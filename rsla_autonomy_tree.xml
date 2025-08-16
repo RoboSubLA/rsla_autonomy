@@ -225,52 +225,75 @@
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="CalibrateSurface"/>
-    <Condition ID="FrontCanSeeObject">
-      <input_port name="class"
-                  type="unsigned char"/>
-    </Condition>
-    <Action ID="GoAtWrench">
-      <input_port name="mask"
-                  type="unsigned char"/>
-      <input_port name="torque"
-                  type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
-      <input_port name="force"
-                  type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
-    </Action>
-    <Action ID="GoToPose">
-      <input_port name="rel"
-                  type="bool"/>
-      <input_port name="mask"
-                  type="unsigned char"/>
-      <input_port name="eulers"
-                  type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
-      <input_port name="position"
-                  type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
-    </Action>
-    <Condition ID="FrontHaveSeenObjectSince">
-      <input_port name="timeout"
-                  type="unsigned int"/>
-      <input_port name="class"
-                  type="unsigned char"/>
-    </Condition>
-    <Action ID="HoldPosition"/>
-    <Action ID="PrintToLog">
-      <input_port name="message"
-                  type="std::string"/>
-    </Action>
-    <Action ID="SetArmedState">
-      <input_port name="flag"
-                  type="bool"/>
-    </Action>
-    <Action ID="TurnTowardsObject">
-      <input_port name="fraction"
-                  type="float"/>
-      <input_port name="class"
-                  type="unsigned char"/>
-    </Action>
-    <Action ID="WaitForPose"/>
-    <Action ID="WaitForFrontVision"/>
-  </TreeNodesModel>
-
+        <Action ID="AlignAboveObject">
+            <input_port name="k_p" type="float"/>
+            <input_port name="x_offset" type="float"/>
+            <input_port name="y_offset" type="float"/>
+            <input_port name="class" type="unsigned char"/>
+        </Action>
+        <Action ID="CalibrateSurface"/>
+        <Condition ID="DownCanSeeObject">
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Condition ID="DownHaveSeenObject">
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Condition ID="DownHaveSeenObjectSince">
+            <input_port name="timeout" type="unsigned int"/>
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Condition ID="DownObjectCloserThan">
+            <input_port name="distance" type="float"/>
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Action ID="DropBall">
+            <input_port name="data" type="signed char"/>
+        </Action>
+        <Condition ID="FrontCanSeeObject">
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Condition ID="FrontHaveSeenObject">
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Condition ID="FrontHaveSeenObjectSince">
+            <input_port name="timeout" type="unsigned int"/>
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Condition ID="FrontObjectCloserThan">
+            <input_port name="distance" type="float"/>
+            <input_port name="class" type="unsigned char"/>
+        </Condition>
+        <Action ID="GoAtWrench">
+            <input_port name="mask" type="unsigned char"/>
+            <input_port name="torque" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+            <input_port name="force" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+        </Action>
+        <Action ID="GoToPose">
+            <input_port name="rel" type="bool"/>
+            <input_port name="mask" type="unsigned char"/>
+            <input_port name="eulers" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+            <input_port name="position" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+        </Action>
+        <Action ID="HoldPosition"/>
+        <Action ID="OrientTowardsSlalom">
+            <input_port name="fraction" type="float"/>
+            <input_port name="gate_type" type="unsigned char"/>
+            <input_port name="red_id" type="unsigned char"/>
+            <input_port name="shift_force" type="float"/>
+            <input_port name="white_id" type="unsigned char"/>
+        </Action>
+        <Action ID="PrintToLog">
+            <input_port name="message" type="std::string"/>
+        </Action>
+        <Action ID="SetArmedState">
+            <input_port name="flag" type="bool"/>
+        </Action>
+        <Action ID="TurnTowardsObject">
+            <input_port name="fraction" type="float"/>
+            <input_port name="class" type="unsigned char"/>
+        </Action>
+        <Action ID="WaitForDownVision"/>
+        <Action ID="WaitForFrontVision"/>
+        <Action ID="WaitForPose"/>
+    </TreeNodesModel>
 </root>
