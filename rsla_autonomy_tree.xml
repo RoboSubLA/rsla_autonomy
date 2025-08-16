@@ -14,7 +14,7 @@
       <RetryUntilSuccessful num_attempts="-1">
         <Sequence>
           <WaitForFrontVision/>
-          <FrontCanSeeObject class="6"/>
+          <FrontHaveSeenObjectSince timeout="500" class="6"/>
         </Sequence>
       </RetryUntilSuccessful>
       <GoAtWrench mask="33"
@@ -26,7 +26,7 @@
           <TurnTowardsObject fraction="0.75"
                              class="6"/>
           <Inverter>
-            <FrontHaveSeenObjectSince timeout="500"
+            <FrontHaveSeenObjectSince timeout="1000"
                                  class="6"/>
           </Inverter>
         </Sequence>
@@ -53,7 +53,7 @@
       <RetryUntilSuccessful num_attempts="-1">
         <Sequence>
           <WaitForFrontVision/>
-          <FrontCanSeeObject class="6"/>
+          <FrontHaveSeenObjectSince timeout="500" class="6"/>
         </Sequence>
       </RetryUntilSuccessful>
       <GoAtWrench mask="33"
@@ -65,26 +65,24 @@
           <TurnTowardsObject fraction="0.75"
                              class="6"/>
           <Inverter>
-            <FrontHaveSeenObjectSince timeout="500"
+            <FrontHaveSeenObjectSince timeout="1000"
                                  class="6"/>
           </Inverter>
         </Sequence>
       </RetryUntilSuccessful>
       <HoldPosition/>
       <Sleep msec="3000"/>
-      <RetryUntilSuccessful num_attempts="-1">
-        <Sequence>
-          <WaitForDownVision/>
-          <AlignAboveObject class="6"
-                            x_offset="0"
-                            y_offset="0"
-                            k_p="1"/>
-          <Inverter>
-            <DownHaveSeenObjectSince timeout="500"
-                                class="6"/>
-          </Inverter>
-        </Sequence>
-      </RetryUntilSuccessful>
+      <ForceSuccess>
+        <Timeout msec="5000">
+          <Repeat num_cycles="-1">
+            <WaitForDownVision/>
+            <AlignAboveObject class="6"
+                              x_offset="0"
+                              y_offset="0"
+                              k_p="1"/>
+          </Repeat>
+        </Timeout>
+      </ForceSuccess>
       <HoldPosition/>
       <Sleep msec="3000"/>
       <DropBall/>
