@@ -19,17 +19,17 @@ namespace RSLA
         static BT::PortsList providedPorts()
         {
             return { BT::InputPort<uint8_t>("class"),
-                     BT::InputPort<uint8_t>("x_offset"),
-                     BT::InputPort<uint8_t>("y_offset"),
-                     BT::InputPort<uint8_t>("k_p") };
+                     BT::InputPort<float>("x_offset"),
+                     BT::InputPort<float>("y_offset"),
+                     BT::InputPort<float>("k_p") };
         }
 
         BT::NodeStatus tick() override
         {
             BT::Expected<uint8_t> class_id = getInput<uint8_t>("class");
-            BT::Expected<uint8_t> x_offset = getInput<uint8_t>("x_offset");
-            BT::Expected<uint8_t> y_offset = getInput<uint8_t>("y_offset");
-            BT::Expected<uint8_t> k_p = getInput<uint8_t>("k_p");
+            BT::Expected<float> x_offset = getInput<float>("x_offset");
+            BT::Expected<float> y_offset = getInput<float>("y_offset");
+            BT::Expected<float> k_p = getInput<float>("k_p");
 
             if(!class_id)
             {
