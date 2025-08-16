@@ -1,14 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4"
       main_tree_to_execute="Main">
+  <BehaviorTree ID="Octagon">
+    <Sequence>
+      <GoToPose rel="0"
+                mask="4"
+                eulers="0;0;0"
+                position="0;0;1"/>
+      <Sleep msec="3000"/>
+      <GoAtWrench mask="32"
+                  torque="0;0;3"
+                  force="0;0;0"/>
+      <RetryUntilSuccessful num_attempts="-1">
+        <Sequence>
+          <WaitForFrontVision/>
+          <FrontCanSeeObject class="6"/>
+        </Sequence>
+      </RetryUntilSuccessful>
+      <GoAtWrench mask="33"
+                  torque="0;0;0"
+                  force="10;0;0"/>
+      <RetryUntilSuccessful num_attempts="-1">
+        <Sequence>
+          <WaitForFrontVision/>
+          <TurnTowardsObject fraction="0.75"
+                             class="6"/>
+          <Inverter>
+            <FrontHaveSeenObjectSince timeout="500"
+                                 class="6"/>
+          </Inverter>
+        </Sequence>
+      </RetryUntilSuccessful>
+      <HoldPosition/>
+      <Sleep msec="5000"/>
+      <GoToPose rel="0"
+                mask="32"
+                eulers="0;0;0"
+                position="0;0;0"/>
+      <Sleep msec="5000"/>
+    </Sequence>
+  </BehaviorTree>
   <BehaviorTree ID="Bin">
     <Sequence>
       <GoToPose rel="0"
                 mask="4"
                 eulers="0;0;0"
-                position="0;0;0.5"/>
+                position="0;0;1.4"/>
+      <Sleep msec="3000"/>
       <GoAtWrench mask="32"
-                  torque="0;0;5"
+                  torque="0;0;3"
                   force="0;0;0"/>
       <RetryUntilSuccessful num_attempts="-1">
         <Sequence>
@@ -25,16 +65,31 @@
           <TurnTowardsObject fraction="0.75"
                              class="6"/>
           <Inverter>
-            <FrontHaveSeenObjectSince timeout="3000"
+            <FrontHaveSeenObjectSince timeout="500"
                                  class="6"/>
           </Inverter>
         </Sequence>
       </RetryUntilSuccessful>
+      <HoldPosition/>
       <Sleep msec="3000"/>
-      <GoToPose rel="0"
-                mask="32"
-                eulers="0;0;0"
-                position="0;0;0"/>
+      <RetryUntilSuccessful num_attempts="-1">
+        <Sequence>
+          <WaitForDownVision/>
+          <AlignAboveObject class="6"
+                            x_offset="0"
+                            y_offset="0"
+                            k_p="1"/>
+          <Inverter>
+            <DownHaveSeenObjectSince timeout="500"
+                                class="6"/>
+          </Inverter>
+        </Sequence>
+      </RetryUntilSuccessful>
+      <HoldPosition/>
+      <Sleep msec="3000"/>
+      <DropBall/>
+      <Sleep msec="3000"/>
+      <DropBall/>
       <Sleep msec="5000"/>
     </Sequence>
   </BehaviorTree>
