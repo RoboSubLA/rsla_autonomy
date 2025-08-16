@@ -90,7 +90,7 @@
       <DropBall data="1"/>
       <Sleep msec="3000"/>
       <DropBall data="2"/>
-      <sleep msec="3000"/>
+      <Sleep msec="3000"/>
       <DropBall data="0"/>
       <Sleep msec="5000"/>
     </Sequence>
