@@ -1,45 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4"
       main_tree_to_execute="Main">
-  <BehaviorTree ID="Octagon">
-    <Sequence>
-      <GoToPose rel="0"
-                mask="4"
-                eulers="0;0;0"
-                position="0;0;1"/>
-      <Sleep msec="3000"/>
-      <GoAtWrench mask="32"
-                  torque="0;0;3"
-                  force="0;0;0"/>
-      <RetryUntilSuccessful num_attempts="-1">
-        <Sequence>
-          <WaitForFrontVision/>
-          <FrontHaveSeenObjectSince timeout="500" class="6"/>
-        </Sequence>
-      </RetryUntilSuccessful>
-      <GoAtWrench mask="33"
-                  torque="0;0;0"
-                  force="10;0;0"/>
-      <RetryUntilSuccessful num_attempts="-1">
-        <Sequence>
-          <WaitForFrontVision/>
-          <TurnTowardsObject fraction="0.75"
-                             class="6"/>
-          <Inverter>
-            <FrontHaveSeenObjectSince timeout="1000"
-                                 class="6"/>
-          </Inverter>
-        </Sequence>
-      </RetryUntilSuccessful>
-      <HoldPosition/>
-      <Sleep msec="5000"/>
-      <GoToPose rel="0"
-                mask="32"
-                eulers="0;0;0"
-                position="0;0;0"/>
-      <Sleep msec="5000"/>
-    </Sequence>
-  </BehaviorTree>
   <BehaviorTree ID="Bin">
     <Sequence>
       <GoToPose rel="0"
@@ -53,7 +14,8 @@
       <RetryUntilSuccessful num_attempts="-1">
         <Sequence>
           <WaitForFrontVision/>
-          <FrontHaveSeenObjectSince timeout="500" class="6"/>
+          <FrontHaveSeenObjectSince timeout="500"
+                                    class="0"/>
         </Sequence>
       </RetryUntilSuccessful>
       <GoAtWrench mask="33"
@@ -63,24 +25,34 @@
         <Sequence>
           <WaitForFrontVision/>
           <TurnTowardsObject fraction="0.75"
-                             class="6"/>
+                             class="0"/>
           <Inverter>
             <FrontHaveSeenObjectSince timeout="1000"
-                                 class="6"/>
+                                      class="0"/>
           </Inverter>
+        </Sequence>
+      </RetryUntilSuccessful>
+      <GoAtWrench mask="1"
+                  torque="0;0;0"
+                  force="7;0;0"/>
+      <RetryUntilSuccessful num_attempts="-1">
+        <Sequence>
+          <WaitForDownVision/>
+          <DownHaveSeenObjectSince timeout="1000"
+                                   class="5"/>
         </Sequence>
       </RetryUntilSuccessful>
       <HoldPosition/>
       <Sleep msec="3000"/>
       <ForceSuccess>
-        <Timeout msec="5000">
+        <Timeout msec="10000">
           <Repeat num_cycles="-1">
             <Sequence>
               <WaitForDownVision/>
-              <AlignAboveObject class="6"
+              <AlignAboveObject k_p="1"
                                 x_offset="0"
                                 y_offset="0"
-                                k_p="1"/>
+                                class="5"/>
             </Sequence>
           </Repeat>
         </Timeout>
@@ -92,7 +64,6 @@
       <DropBall data="2"/>
       <Sleep msec="3000"/>
       <DropBall data="0"/>
-      <Sleep msec="5000"/>
     </Sequence>
   </BehaviorTree>
 
@@ -110,7 +81,7 @@
         <Sequence>
           <WaitForFrontVision/>
           <FrontHaveSeenObjectSince timeout="500"
-                               class="4"/>
+                                    class="4"/>
         </Sequence>
       </RetryUntilSuccessful>
       <GoAtWrench mask="33"
@@ -123,7 +94,7 @@
                              class="4"/>
           <Inverter>
             <FrontHaveSeenObjectSince timeout="3000"
-                                 class="4"/>
+                                      class="4"/>
           </Inverter>
         </Sequence>
       </RetryUntilSuccessful>
@@ -147,6 +118,47 @@
     </Sequence>
   </BehaviorTree>
 
+  <BehaviorTree ID="Octagon">
+    <Sequence>
+      <GoToPose rel="0"
+                mask="4"
+                eulers="0;0;0"
+                position="0;0;1"/>
+      <Sleep msec="3000"/>
+      <GoAtWrench mask="32"
+                  torque="0;0;3"
+                  force="0;0;0"/>
+      <RetryUntilSuccessful num_attempts="-1">
+        <Sequence>
+          <WaitForFrontVision/>
+          <FrontHaveSeenObjectSince timeout="500"
+                                    class="6"/>
+        </Sequence>
+      </RetryUntilSuccessful>
+      <GoAtWrench mask="33"
+                  torque="0;0;0"
+                  force="10;0;0"/>
+      <RetryUntilSuccessful num_attempts="-1">
+        <Sequence>
+          <WaitForFrontVision/>
+          <TurnTowardsObject fraction="0.75"
+                             class="6"/>
+          <Inverter>
+            <FrontHaveSeenObjectSince timeout="1000"
+                                      class="6"/>
+          </Inverter>
+        </Sequence>
+      </RetryUntilSuccessful>
+      <HoldPosition/>
+      <Sleep msec="5000"/>
+      <GoToPose rel="0"
+                mask="32"
+                eulers="0;0;0"
+                position="0;0;0"/>
+      <Sleep msec="5000"/>
+    </Sequence>
+  </BehaviorTree>
+
   <BehaviorTree ID="Shutdown">
     <SetArmedState flag="0"/>
   </BehaviorTree>
@@ -164,25 +176,29 @@
       <RetryUntilSuccessful num_attempts="-1">
         <Sequence>
           <WaitForFrontVision/>
-          <FrontHaveSeenObjectSince timeout="500" class="6"/>
-          <FrontHaveSeenObjectSince timeout="500" class="2" />
+          <FrontHaveSeenObjectSince timeout="500"
+                                    class="6"/>
+          <FrontHaveSeenObjectSince timeout="500"
+                                    class="2"/>
         </Sequence>
       </RetryUntilSuccessful>
       <GoAtWrench mask="33"
                   torque="0;0;0"
                   force="7;0;0"/>
       <RetryUntilSuccessful num_attempts="-1">
-      	<Sequence>
+        <Sequence>
           <WaitForFrontVision/>
-          <OrientTowardsSlalom white_id="6"
-                               red_id="2"
+          <OrientTowardsSlalom fraction="0.75"
                                gate_type="2"
+                               red_id="2"
                                shift_force="7"
-		                           fraction="0.75"/>
+                               white_id="6"/>
           <Inverter>
             <Sequence>
-              <FrontHaveSeenObjectSince timeout="3000" class="2"/>
-              <FrontHaveSeenObjectSince timeout="3000" class="6"/>
+              <FrontHaveSeenObjectSince timeout="3000"
+                                        class="2"/>
+              <FrontHaveSeenObjectSince timeout="3000"
+                                        class="6"/>
             </Sequence>
           </Inverter>
         </Sequence>
@@ -229,75 +245,81 @@
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-        <Action ID="AlignAboveObject">
-            <input_port name="k_p" type="float"/>
-            <input_port name="x_offset" type="float"/>
-            <input_port name="y_offset" type="float"/>
-            <input_port name="class" type="unsigned char"/>
-        </Action>
-        <Action ID="CalibrateSurface"/>
-        <Condition ID="DownCanSeeObject">
-            <input_port name="class" type="unsigned char"/>
-        </Condition>
-        <Condition ID="DownHaveSeenObject">
-            <input_port name="class" type="unsigned char"/>
-        </Condition>
-        <Condition ID="DownHaveSeenObjectSince">
-            <input_port name="timeout" type="unsigned int"/>
-            <input_port name="class" type="unsigned char"/>
-        </Condition>
-        <Condition ID="DownObjectCloserThan">
-            <input_port name="distance" type="float"/>
-            <input_port name="class" type="unsigned char"/>
-        </Condition>
-        <Action ID="DropBall">
-            <input_port name="data" type="signed char"/>
-        </Action>
-        <Condition ID="FrontCanSeeObject">
-            <input_port name="class" type="unsigned char"/>
-        </Condition>
-        <Condition ID="FrontHaveSeenObject">
-            <input_port name="class" type="unsigned char"/>
-        </Condition>
-        <Condition ID="FrontHaveSeenObjectSince">
-            <input_port name="timeout" type="unsigned int"/>
-            <input_port name="class" type="unsigned char"/>
-        </Condition>
-        <Condition ID="FrontObjectCloserThan">
-            <input_port name="distance" type="float"/>
-            <input_port name="class" type="unsigned char"/>
-        </Condition>
-        <Action ID="GoAtWrench">
-            <input_port name="mask" type="unsigned char"/>
-            <input_port name="torque" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
-            <input_port name="force" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
-        </Action>
-        <Action ID="GoToPose">
-            <input_port name="rel" type="bool"/>
-            <input_port name="mask" type="unsigned char"/>
-            <input_port name="eulers" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
-            <input_port name="position" type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
-        </Action>
-        <Action ID="HoldPosition"/>
-        <Action ID="OrientTowardsSlalom">
-            <input_port name="fraction" type="float"/>
-            <input_port name="gate_type" type="unsigned char"/>
-            <input_port name="red_id" type="unsigned char"/>
-            <input_port name="shift_force" type="float"/>
-            <input_port name="white_id" type="unsigned char"/>
-        </Action>
-        <Action ID="PrintToLog">
-            <input_port name="message" type="std::string"/>
-        </Action>
-        <Action ID="SetArmedState">
-            <input_port name="flag" type="bool"/>
-        </Action>
-        <Action ID="TurnTowardsObject">
-            <input_port name="fraction" type="float"/>
-            <input_port name="class" type="unsigned char"/>
-        </Action>
-        <Action ID="WaitForDownVision"/>
-        <Action ID="WaitForFrontVision"/>
-        <Action ID="WaitForPose"/>
-    </TreeNodesModel>
+    <Action ID="AlignAboveObject">
+      <input_port name="k_p"
+                  type="float"/>
+      <input_port name="x_offset"
+                  type="float"/>
+      <input_port name="y_offset"
+                  type="float"/>
+      <input_port name="class"
+                  type="unsigned char"/>
+    </Action>
+    <Action ID="CalibrateSurface"/>
+    <Condition ID="DownHaveSeenObjectSince">
+      <input_port name="timeout"
+                  type="unsigned int"/>
+      <input_port name="class"
+                  type="unsigned char"/>
+    </Condition>
+    <Action ID="DropBall">
+      <input_port name="data"
+                  type="signed char"/>
+    </Action>
+    <Condition ID="FrontHaveSeenObjectSince">
+      <input_port name="timeout"
+                  type="unsigned int"/>
+      <input_port name="class"
+                  type="unsigned char"/>
+    </Condition>
+    <Action ID="GoAtWrench">
+      <input_port name="mask"
+                  type="unsigned char"/>
+      <input_port name="torque"
+                  type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+      <input_port name="force"
+                  type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+    </Action>
+    <Action ID="GoToPose">
+      <input_port name="rel"
+                  type="bool"/>
+      <input_port name="mask"
+                  type="unsigned char"/>
+      <input_port name="eulers"
+                  type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+      <input_port name="position"
+                  type="geometry_msgs::msg::Vector3_&lt;std::allocator&lt;void&gt; &gt;"/>
+    </Action>
+    <Action ID="HoldPosition"/>
+    <Action ID="OrientTowardsSlalom">
+      <input_port name="fraction"
+                  type="float"/>
+      <input_port name="gate_type"
+                  type="unsigned char"/>
+      <input_port name="red_id"
+                  type="unsigned char"/>
+      <input_port name="shift_force"
+                  type="float"/>
+      <input_port name="white_id"
+                  type="unsigned char"/>
+    </Action>
+    <Action ID="PrintToLog">
+      <input_port name="message"
+                  type="std::string"/>
+    </Action>
+    <Action ID="SetArmedState">
+      <input_port name="flag"
+                  type="bool"/>
+    </Action>
+    <Action ID="TurnTowardsObject">
+      <input_port name="fraction"
+                  type="float"/>
+      <input_port name="class"
+                  type="unsigned char"/>
+    </Action>
+    <Action ID="WaitForDownVision"/>
+    <Action ID="WaitForFrontVision"/>
+    <Action ID="WaitForPose"/>
+  </TreeNodesModel>
+
 </root>
