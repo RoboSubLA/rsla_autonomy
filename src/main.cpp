@@ -26,6 +26,8 @@ int main(int argc, char **argv)
     // Register all nodes
     factory.registerNodeType<RSLA::PrintToLog>("PrintToLog");
     factory.registerNodeType<RSLA::SetArmedState>("SetArmedState", node);
+    factory.registerNodeType<RSLA::UpdateMarker>("UpdateMarker", node);
+    factory.registerNodeType<RSLA::LoadMarker>("LoadMarker", node);
     factory.registerNodeType<RSLA::GoToPose>("GoToPose", node);
     factory.registerNodeType<RSLA::DropBall>("DropBall", node);
     factory.registerNodeType<RSLA::GoAtWrench>("GoAtWrench", node);
@@ -35,6 +37,7 @@ int main(int argc, char **argv)
     factory.registerNodeType<RSLA::WaitForFrontVision>("WaitForFrontVision", node);
     factory.registerNodeType<RSLA::WaitForDownVision>("WaitForDownVision", node);
     factory.registerNodeType<RSLA::TurnTowardsObject>("TurnTowardsObject", node);
+    factory.registerNodeType<RSLA::OrientTowardsSlalom>("OrientTowardsSlalom", node);
 
     factory.registerNodeType<RSLA::FrontCanSeeObject>("FrontCanSeeObject", node);
     factory.registerNodeType<RSLA::FrontHaveSeenObject>("FrontHaveSeenObject", node);
@@ -44,6 +47,7 @@ int main(int argc, char **argv)
     factory.registerNodeType<RSLA::DownHaveSeenObject>("DownHaveSeenObject", node);
     factory.registerNodeType<RSLA::DownHaveSeenObjectSince>("DownHaveSeenObjectSince", node);
     factory.registerNodeType<RSLA::DownObjectCloserThan>("DownObjectCloserThan", node);
+    factory.registerNodeType<RSLA::PoseWithinTolerance>("PoseWithinTolerance", node);
 
     // Get home directory
     std::string home = getenv("HOME");

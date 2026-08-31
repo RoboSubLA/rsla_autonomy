@@ -11,7 +11,11 @@
 #include "actions/wait_for_down_vision.hpp"
 #include "actions/turn_towards_object.hpp"
 #include "actions/drop_ball.hpp"
+#include "actions/orient_towards_slalom.hpp"
+#include "actions/load_marker.hpp"
+#include "actions/update_marker.hpp"
 
+#include "conditions/pose_within_tolerance.hpp"
 #include "conditions/front_can_see_object.hpp"
 #include "conditions/front_have_seen_object.hpp"
 #include "conditions/front_have_seen_object_since.hpp"

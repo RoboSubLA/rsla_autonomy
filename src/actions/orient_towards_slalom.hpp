@@ -17,7 +17,10 @@ namespace RSLA
 
         static BT::PortsList providedPorts()
         {
-            return { BT::InputPort<uint8_t>("class"),
+            return { BT::InputPort<uint8_t>("white_id"),
+		     BT::InputPort<uint8_t>("red_id"),
+		     BT::InputPort<uint8_t>("gate_type"),
+		     BT::InputPort<float>("shift_force"),
                      BT::InputPort<float>("fraction") };
         }
 
@@ -70,7 +73,7 @@ namespace RSLA
             float white_yaw = node_->frontDetections[white_id.value()].yaw_abs_approx;
             float red_yaw = node_->frontDetections[red_id.value()].yaw_abs_approx;
 
-            if(gate_type.value() < 2 && gate_type.value() == white_yaw > red_yaw)
+            if(gate_type.value() < 2 && gate_type.value() == (white_yaw > red_yaw))
             {
                 geometry_msgs::msg::Vector3 force;
                 force.x = 0;

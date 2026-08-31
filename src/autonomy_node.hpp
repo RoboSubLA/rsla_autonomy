@@ -1,5 +1,10 @@
 #pragma once
 
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/empty.hpp"
 #include "std_msgs/msg/bool.hpp"
@@ -47,12 +52,21 @@ namespace RSLA
         float distance = 0.0;
     };
 
+    struct MarkerPosition
+    {
+        float x;
+        float y;
+    };
+
     // ROS Node definition
     class AutonomyNode : public rclcpp::Node
     {
     public:
         AutonomyNode(const char* name) : Node(name)
         {
+            std::string home = getenv("HOME");
+            this->load_csv(home + "/markers.csv");
+
             // Setup heartbeat
             hb_message = std_msgs::msg::Empty();
             hb_publisher_ = this->create_publisher<std_msgs::msg::Empty>("rsla/autonomy/heartbeat", 1);
@@ -89,6 +103,25 @@ namespace RSLA
             vision_down_detections_message_subscription_ = this->create_subscription<rsla_interfaces::msg::DetectionArray>("rsla/vision/down_detections", 1, std::bind(&AutonomyNode::vision_down_detections_callback, this, std::placeholders::_1));
         }
 
+        void load_csv(const std::string &path) {
+          std::ifstream file(path);
+          std::string line;
+     
+          while (std::getline(file, line)) {
+            if (line.empty()) continue;
+     
+            std::stringstream ss(line);
+            std::string name, xs, ys;
+     
+            if (!std::getline(ss, name, ',')) continue;
+            if (!std::getline(ss, xs, ',')) continue;
+            if (!std::getline(ss, ys, ',')) continue;
+     
+	    RCLCPP_INFO(this->get_logger(), "Loaded Marker \"%s\" (%s, %s)", name.c_str(), xs.c_str(), ys.c_str());
+            markers[name] = MarkerPosition{std::stof(xs), std::stof(ys)};
+          }
+        }
+     
         void set_armed(bool flag)
         {
             arm_message.data = flag;
@@ -105,6 +138,8 @@ namespace RSLA
         void set_cmd_pose(geometry_msgs::msg::Point position, rsla_interfaces::msg::EulerAngles orientation, uint8_t mask)
         {
             cmd_pose_message.cmd.position = position;
+            cmd_pose_message.cmd.position.x -= offset.x;
+            cmd_pose_message.cmd.position.y -= offset.y;
             cmd_pose_message.cmd.orientation = orientation;
             cmd_pose_message.mask = mask;
             cmd_pose_publisher_->publish(cmd_pose_message);
@@ -182,6 +217,9 @@ namespace RSLA
             diagnostic_command_publisher_->publish(diagnostic_command_message);
         }
 
+        std::unordered_map<std::string, MarkerPosition> markers;
+        MarkerPosition offset{0.0f, 0.0f};
+
         PoseEulerData current_pose;
         bool new_pose_data = false;
 
@@ -197,8 +235,8 @@ namespace RSLA
 
         void vehicle_pose_callback(const rsla_interfaces::msg::PoseEuler::SharedPtr msg)
         {
-            current_pose.x = msg->position.x;
-            current_pose.y = msg->position.y;
+            current_pose.x = msg->position.x + offset.x;
+            current_pose.y = msg->position.y + offset.y;
             current_pose.z = msg->position.z;
             current_pose.roll = msg->orientation.roll;
             current_pose.pitch = msg->orientation.pitch;
@@ -244,8 +282,8 @@ namespace RSLA
                 downDetections[i].millis_since_seen = det.millis_since_last_detected;
                 if(det.detected)
                 {
-                    downDetections[i].yaw_abs_approx = current_pose.yaw + det.ang_x;
-                    downDetections[i].pitch_abs_approx = current_pose.pitch + det.ang_y;
+                    downDetections[i].yaw_abs_approx = det.ang_x - current_pose.roll;
+                    downDetections[i].pitch_abs_approx = current_pose.pitch - det.ang_y;
                 }
                 downDetections[i].distance = det.distance;
             }
